@@ -6,14 +6,14 @@ An example of ensemble learning composed by three classifiers:
 
 Both, Naive Bayes and Support Vector, work with scikit-learn library, so were not developed from scratch.
 
-Repository provides already 4 examples of data training (.xls and .xlsx).
+The repository provides already 4 examples of data training (.xls and .xlsx).
 
-User chooses one of possible data training and each classifier starts the learning phase.
+The user can choose one of data training file and each classifier starts the learning phase.
 
-Now, the user can inserts a new record in order to predict the final result.
+After this, application allows the user to insert a new record in order to predict the final result.
 Each classifier calculates a result and a “judge” decides to majority the final result.
 
-At the end, application calculates also 5 performance indexes:
+At the end, the application calculates also 5 performance indexes:
 - Accuracy
 - Sensitivity
 - Specificity
@@ -31,3 +31,4 @@ and writes them in an excel file.
 - scikit-learn – 0.17.1
 - numpy – 1.11.2
 - scipy – 0.18.1
+
