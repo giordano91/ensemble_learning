@@ -1,4 +1,4 @@
-# ensemble_learning
+#Ensemble Learning
 An example of ensemble learning composed by three classifiers:
 - Naive Bayes
 - Candidate Elimination
@@ -23,7 +23,7 @@ At the end, application calculates also 5 performance indexes:
 and writes them in an excel file.
 
 
-Requirements:
+#Requirements:
 - Python 3 – 3.4.3
 - termcolor – 1.1.0
 - xlrd – 1.0.0
