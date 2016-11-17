@@ -41,7 +41,7 @@ def prepare_data(data, header):
     :return:
     - values_list: a list of list contains attributes values order by excel header
     example: [[0, 0, 0, 0], [0, 0, 0, 1]]
-    - results_list: a list with all final results of Excel (True o False)
+    - results_list: a list with all final results of Excel (1 o 0)
     """
     values_list = []
     results_list = []

@@ -18,10 +18,17 @@ def prepare_data(data, target):
 
 def match(hypothesis, instance):
     """
-    :param hypothesis: tuple
-    :param instance: tuple
+    :param hypothesis: tuple - example ('?', '?', '?', '?', '?', '?')
+    :param instance: tuple - example ('0', '0', '0', '0', '0', '0')
     :return: return True if hypothesis matches with instance, False otherwise
+
+    examples:
+    - ('0','?', '?') ('1','0', '0') False
+    - ('?','?', '0'), ('1','0', '0') True
+    - ('?','?', '?'), ('1','0', '0') True
+    - ('1','0', '?'), ('?','0', '0') True
     """
+
     for idx, hyp in enumerate(hypothesis):
         ins_factor = instance[idx]
         if hyp != ins_factor:
@@ -33,8 +40,8 @@ def match(hypothesis, instance):
 def remove_not_matching(hypothesis, instance):
     """
     Remove hypothesis that not match
-    :param hypothesis: equals to G - list of tuples
-    :param instance: single record - tuple
+    :param hypothesis: equals to G - list of tuples - example [('?', '?', '?', '?', '?', '?')]
+    :param instance: single record - tuple - example ('0', '0', '0', '0', '0', '0')
     :return: hypothesis
     """
     copy_of_hypothesis = hypothesis[:]
@@ -46,9 +53,11 @@ def remove_not_matching(hypothesis, instance):
 
 def get_factor_contradictions(first_tuple, second_tuple):
     """
-    :param first_tuple:
-    :param second_tuple:
-    :return: list of  contradictions (tuple)
+    :param first_tuple: tuple - example ('*', '*', '*', '*', '*', '*')
+    :param second_tuple: tuple - example ('0', '0', '0', '0', '0', '0')
+    :return: list of contradictions
+
+    Loop first_tuple and second_tuple and append the index of elements that are in contradiction
     """
     contradictions = []
     for i, first_factor in enumerate(first_tuple):
@@ -62,9 +71,16 @@ def get_factor_contradictions(first_tuple, second_tuple):
 
 def more_general(hyp1, hyp2):
     """
-    :param hyp1: tuple
-    :param hyp2: tuple
+    :param hyp1: tuple - example ('?', '?', '?', '?', '?', '?')
+    :param hyp2: tuple - example ('0', '0', '0', '0', '0', '0')
     :return: True or False
+
+    examples:
+    ('?', '?', '?'), ('Y', 'N', '?') True
+    ('?', '?', '?'), ('Y', 'N', '?') True
+    ('Y', 'N', '?'), ('Y', '?', '?') False
+    ('Y', '?', '?'), ('?', 'N', '?') False
+
     """
     more_gen = False
     if match(hyp1, hyp2):
@@ -81,10 +97,15 @@ def more_specific(hyp1, hyp2):
 
 def get_min_generalization(s, sample):
     """
-    :param s: instance of max specific - tuple
-    :param sample: single record - tuple
+    :param s: instance of max specific - tuple - example ('*', '*', '*', '*', '*', '*')
+    :param sample: single record - tuple - example ('0', '0', '0', '0', '0', '0')
     :return: tuple of max specific
+
+    examples:
+    - ('Y', 'N', 'Y'), ('N', 'N', 'Y') => ('?', 'N', 'Y')
+    - ('0', '0', '0'), ('Y', 'N', 'Y') => ('Y', 'N', 'Y')
     """
+
     contradictions = get_factor_contradictions(s, sample)
     specific_list = list(s)
     for contradiction in contradictions:
@@ -97,8 +118,8 @@ def get_min_generalization(s, sample):
 
 def process_generalization(generalization, max_generic):
     """
-    :param generalization:
-    :param max_generic:
+    :param generalization: tuple - example ('0', '0', '0', '0', '0', '0')
+    :param max_generic: list of tuple - example [('?', '?', '?', '?', '?', '?')]
     :return: True or False
     """
     if not max_generic:
@@ -126,9 +147,13 @@ def remove_matching(hypotheses, instance):
 def get_min_specializations(g, instance):
     """
     Return min specializations
-    :param g: tuple
-    :param instance: tuple
+    :param g: tuple - example ('?', '?', '?', '?', '?', '?')
+    :param instance: tuple - example ('1', '1', '1', '0', '0', '1')
     :return: list of tuple
+
+    examples:
+    - ('?', '?', '?') - ('1', '0', '1') => [('0', '?', '?'), ('?', '1', '?'), ('?', '?', '0')]
+    - ('0', '?', '?') - ('0', '1', '0') => [('0', '0', '?'), ('0', '?', '1')]
     """
     specializations = []
 
@@ -169,8 +194,8 @@ class CalcCandidateElimination:
     def __init__(self, data, target):
         self.training_data = prepare_data(data, target)
         self.num_attributes = len(data[0])
-        self.max_general = [tuple(['?' for i in range(self.num_attributes)])]   # G
-        self.max_specific = [tuple(['*' for i in range(self.num_attributes)])]  # S
+        self.max_general = [tuple(['?' for i in range(self.num_attributes)])]   # G <- Maximally general hypotheses
+        self.max_specific = [tuple(['*' for i in range(self.num_attributes)])]  # S <- Maximally specific hypotheses
         self.numFactors = 4
         self.version_space = []
 
@@ -178,9 +203,30 @@ class CalcCandidateElimination:
         """
         G = list of tuple - [('?', '?', '?', '?')]
         S = list of tuple - [('*', '*', '*', '*')]
-        training data = each record is a tuple with attributes values and 0 or 1 as results -
+        training data = each record is a list with two elements:
+                        the first element is a tuple with attributes values and the second element is 0 or 1 as results.
                         example: [ [('0', '0', '0', '0'), 1], [('0', '0', '0', '1'), 0] ]
+
         Execute candidate elimination algorithm
+
+        PseudoCode:
+
+        for each training example d=<x,c(x)> do:
+            if d is a positive example then do:
+                remove from G any hypothesis that is inconsistent with d
+                for each hypothesis s in S that is inconsistent with d do:
+                    remove s from S
+                    add to S all minimal generalizations h of s such that h consistent with d
+                                                                            and some member of G is more general than h
+                remove from S any hypothesis more general than another in S
+            else (d is a negative example) do:
+                remove from S any hypothesis that is inconsistent with d
+                for each hypothesis g in G that inconsistent with d
+                    remove g from G
+                    add to G all minimal specializations h of g such that h consistent with d and
+                                                                          some member of S is more specific than h
+                    remove from G any hypothesis less general than another in G
+
         :return: version space
         """
 
@@ -188,39 +234,47 @@ class CalcCandidateElimination:
             sample = training_example[0]
             result = training_example[1]
 
-            # positive case
+            # positive example
             if result == 1:
-                # remove from G any hypothesis inconsistent
+                # remove from G any hypothesis that is inconsistent
                 self.max_general = remove_not_matching(self.max_general, sample)
                 copy_of_max_specific = self.max_specific[:]
+                # for each hypothesis s in S
                 for s in self.max_specific:
+                    # that is inconsistent
                     if not match(s, sample):
                         # remove s from S
                         copy_of_max_specific.remove(s)
+                        # add to S all minimal generalizations h of s such that h consistent with d
+                        # and some member of G is more general than h
                         generalization = get_min_generalization(s, sample)
-                        # generalization
                         if process_generalization(generalization, self.max_general):
                             copy_of_max_specific.append(generalization)
+
                 self.max_specific = copy_of_max_specific[:]
 
-            # negative case
+            # negative example
             elif result == 0:
-                # remove from S any hypothesis inconsistent
+                # remove from S any hypothesis that is inconsistent
                 self.max_specific = remove_matching(self.max_specific, sample)
                 new_max_generic = self.max_general[:]
+                # for each hypothesis g in G
                 for g in self.max_general:
+                    # that is inconsistent
                     if match(g, sample):
                         # remove g from G
                         new_max_generic.remove(g)
+                    # add to G all minimal specializations h of g such that h consistent with d
+                    # and some member of S is more specific than h
                     specializations = get_min_specializations(g, sample)
-                    # specializations
                     specializations = self.process_specializations(specializations, self.max_specific)
                     new_max_generic += specializations
+
                 self.max_general = new_max_generic[:]
 
                 self.max_general = remove_more_specific(self.max_general)
 
-            # wrong branch
+            # wrong example
             else:
                 # Should not happen
                 print("Error! Wrong result")
@@ -230,9 +284,14 @@ class CalcCandidateElimination:
 
     def process_specializations(self, specializations, max_specific):
         """
-        :param specializations: list of tuple
-        :param max_specific: list of tuple
+        :param specializations: list of tuple - example [('0', '?', '?', '?', '?', '?')]
+        :param max_specific: list of tuple - example [('0', '0', '?', '0', '0', '0')]
         :return: list of tuple
+
+        examples:
+        - [('?', '1', '0')] - [('1', '?', '0'), ('?', '1', '0'), ('?', '0', '0')] => [('?', '1', '0')]
+        - [('1', '1', '0')] - [('0', '?', '?'), ('1', '?', '?'), ('?', '0', '?'), ('?', '?', '0'), ('?', '?', '1')]
+            => [('1', '?', '?'), ('?', '?', '0')]
         """
 
         valid_specializations = []
@@ -246,6 +305,9 @@ class CalcCandidateElimination:
 
     def gen_version_space(self):
         """
+        For each tuple of S and for each tuple of G, add to 'attributes' list S's element if
+        position indices are equal. Otherwise add G's element.
+        :param: None
         :return: version space - list
         """
         # add to version space all instances of G and S
@@ -260,20 +322,25 @@ class CalcCandidateElimination:
                     attributes = []
                     for j in range(self.num_attributes):
                         if j == i:
-                            pass
                             attributes.append(s[i])
                         else:
-                            pass
                             attributes.append(g[j])
                     self.version_space.append(tuple(attributes))
 
+        # use 'set' to eliminate duplicate
         return list(set(self.version_space))
 
     def prediction(self, new_data):
         """
-        Predict final result for the new record
-        :param new_data: list of list
+        Predict final result for the new record.
+        For each version space tuple check if each attribute value (!= ?) is equal to the new value.
+        :param new_data: list of list - user input - example [[0, 0, 0, 0, 0, 0]]
         :return: 1 if is True or 0 otherwise
+
+        examples:
+        <Sunny, Warm, ?, Strong, ?, ?> - <Sunny, Warm, Normal, Strong, Cool, Change> - classification_yes
+        <Sunny, Warm, ?, Strong, ?, ?> - <Rainy, Cold, normal, Light, Warm, Same>    - classification_no
+
         """
         new_record = new_data[0]
         new_record_dict = dict(enumerate(new_record))

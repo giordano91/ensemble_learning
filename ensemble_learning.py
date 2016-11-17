@@ -77,36 +77,36 @@ if __name__ == "__main__":
         # Calculate performance indexes
         confusion_matrix = support_functions.calc_performance(binary_data, header, nb, ce, sv)
 
-        possibility = ['nb', 'ce', 'sv']
+        possibilities = ['nb', 'ce', 'sv']
         full_list = []
-        for i in possibility:
+        for possibility in possibilities:
             single_list = []
-            acc = support_functions.calc_accuracy(confusion_matrix[i]['tn'],
-                                                  confusion_matrix[i]['fp'],
-                                                  confusion_matrix[i]['fn'],
-                                                  confusion_matrix[i]['tp'])
+            acc = support_functions.calc_accuracy(confusion_matrix[possibility]['tn'],
+                                                  confusion_matrix[possibility]['fp'],
+                                                  confusion_matrix[possibility]['fn'],
+                                                  confusion_matrix[possibility]['tp'])
 
             single_list.append(acc)
 
-            spec = support_functions.calc_specificity(confusion_matrix[i]['tn'],
-                                                      confusion_matrix[i]['fp'])
+            spec = support_functions.calc_specificity(confusion_matrix[possibility]['tn'],
+                                                      confusion_matrix[possibility]['fp'])
 
             single_list.append(spec)
 
-            prec = support_functions.calc_precision(confusion_matrix[i]['tn'],
-                                                    confusion_matrix[i]['fp'])
+            prec = support_functions.calc_precision(confusion_matrix[possibility]['tn'],
+                                                    confusion_matrix[possibility]['fp'])
 
             single_list.append(prec)
 
-            prev = support_functions.calc_prevalence(confusion_matrix[i]['tn'],
-                                                     confusion_matrix[i]['fp'],
-                                                     confusion_matrix[i]['fn'],
-                                                     confusion_matrix[i]['tp'])
+            prev = support_functions.calc_prevalence(confusion_matrix[possibility]['tn'],
+                                                     confusion_matrix[possibility]['fp'],
+                                                     confusion_matrix[possibility]['fn'],
+                                                     confusion_matrix[possibility]['tp'])
 
             single_list.append(prev)
 
-            sens = support_functions.calc_sensitivity(confusion_matrix[i]['tn'],
-                                                      confusion_matrix[i]['fp'])
+            sens = support_functions.calc_sensitivity(confusion_matrix[possibility]['tn'],
+                                                      confusion_matrix[possibility]['fp'])
 
             single_list.append(sens)
 
@@ -147,6 +147,7 @@ if __name__ == "__main__":
         # Judge
         false_values = final_results.count(0)
         true_values = final_results.count(1)
+
         if true_values > false_values:
             cprint("Judge says True", 'blue')
         else:
