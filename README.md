@@ -32,3 +32,5 @@ and writes them in an excel file.
 - numpy – 1.11.2
 - scipy – 0.18.1
 
+If you are in trouble installing numpy and scipy with pip and you are using linux, you can follow this link: 
+https://www.scipy.org/install.html
